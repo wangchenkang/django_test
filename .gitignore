@@ -158,3 +158,5 @@ handled_url.txt
 
 # Mac
 .DS_Store
+
+*.html

@@ -25,7 +25,7 @@ SECRET_KEY = 'z0lma)u2vzhs*5-3_2e^j)opymy1d4dv&15!lqlm0wza%%!ob^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.9.103', 'www.xuetangx.com']
 
 
 # Application definition
@@ -37,6 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'account',
+    'common',
+    'entry',
+    'terminology',
+    'script',
+    'problem_classification',
+    'cycle_task',
+    'problem',
+    'sso',
 ]
 
 MIDDLEWARE = [
@@ -75,9 +85,27 @@ WSGI_APPLICATION = 'web.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        "ENGINE": "django.db.backends.mysql",
+        "HOST": "mysql.hunting_tracker.info",
+        "NAME": "hunting_tracker",
+        "PASSWORD": "",
+        "PORT": "3306",
+        "USER": "root",
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+        },
+    },
+    'sso': {
+        "ENGINE": "django.db.backends.mysql",
+        "HOST": "mysql.sso.info",
+        "NAME": "permissions",
+        "PASSWORD": "",
+        "PORT": "3306",
+        "USER": "root",
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+        },
+    },
 }
 
 
@@ -105,16 +133,21 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler'
+}
