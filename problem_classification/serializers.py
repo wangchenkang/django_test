@@ -3,31 +3,50 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from problem_classification.models import ProblemCla
+from script.models import Script
 
 
-class ProblemClaCreateSerializer(serializers.Serializer):
+# class ScriptCreateSer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Script
+#         fields = ('count',)
 
-    name = serializers.CharField(max_length=100)
 
-    def create(self, validated_data):
-        super(ProblemClaCreateSerializer, self).create(validated_data)
+class ProblemClaCreateSerializer(serializers.ModelSerializer):
 
-    def update(self, instance, validated_data):
-        super(ProblemClaCreateSerializer, self).update(instance, validated_data)
+    run_command = serializers.CharField(max_length=100)
+
+    class Meta:
+        model = ProblemCla
+        fields = ('name', 'is_active', 'description', 'script', 'run_command')
+
+
+class ScriptListSer(serializers.ModelSerializer):
+    class Meta:
+        model = Script
+        fields = ('id', 'count')
 
 
 class ProblemClaSerializer(serializers.ModelSerializer):
+    script = ScriptListSer()
 
     class Meta:
         model = ProblemCla
-        fields = ('id', 'name', 'is_active', 'script_id')
+        fields = ('id', 'name', 'is_active', 'script',)
+
+
+class ScriptRetriveSer(serializers.ModelSerializer):
+    class Meta:
+        model = Script
+        fields = ('id', 'run_command')
 
 
 class ProblemClaRetrieveSerializer(serializers.ModelSerializer):
+    script = ScriptRetriveSer()
 
     class Meta:
         model = ProblemCla
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'is_active', 'description', 'script')
 
 
 class ProblemClaUpdateSerializer(serializers.ModelSerializer):
