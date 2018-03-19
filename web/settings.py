@@ -149,5 +149,15 @@ STATIC_URL = '/static/'
 
 
 REST_FRAMEWORK = {
+    'SEARCH_PARAM': 'q',
     'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler'
+}
+
+
+# static server(storage)
+STATIC_SERVER = {
+    'FOLDER': 'hunting_tracker',
+    'PUBLIC_API': 'http://gfsclient.xuetangx.info/upload',
+    'PUBLIC_HOST': 'http://storage.xuetangx.info',
+    'PATH_PREFIX': '/data/public',
 }

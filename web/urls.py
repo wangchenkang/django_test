@@ -28,5 +28,6 @@ urlpatterns = [
     url(r'^terminology/', include('terminology.urls', namespace='terminology')),
     url(r'^problem_cla/', include('problem_classification.urls',
                                   namespace='problem_cla')),
-    # url(r'^problem/', include('problem.urls', namespace='problem')),
+    url(r'^problem/', include('problem.urls', namespace='problem')),
+    url(r'^script/', include('script.urls', namespace='script')),
 ]
