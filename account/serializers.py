@@ -58,21 +58,44 @@ class AccountUpdateSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    group = serializers.SlugRelatedField(read_only=True,
+    groups = serializers.SlugRelatedField(read_only=True,
                                          slug_field='name')
 
     class Meta:
         model = Role
-        fields = ('id', 'group', 'has_frontend', 'has_backend')
+        fields = ('id', 'groups')
 
 
-class RoleCreateSerializer(serializers.Serializer):
+# class RoleCreateSerializer(serializers.Serializer):
+#     name = serializers.CharField(max_length=80)
+#     has_frontend = serializers.BooleanField(default=True)
+#     has_backend = serializers.BooleanField(default=False)
+#
+#     def create(self, validated_data):
+#         super(RoleCreateSerializer, self).create(validated_data)
+#
+#     def update(self, instance, validated_data):
+#         super(RoleCreateSerializer, self).update(instance, validated_data)
+
+
+class RoleCreateSerializer(serializers.ModelSerializer):
+
     name = serializers.CharField(max_length=80)
-    has_frontend = serializers.BooleanField(default=True)
-    has_backend = serializers.BooleanField(default=False)
 
-    def create(self, validated_data):
-        super(RoleCreateSerializer, self).create(validated_data)
+    class Meta:
+        model = Role
+        fields = ('name', 'has_data_display', 'has_classification',
+                  'has_problem', 'has_terminology', 'has_user', 'has_role')
 
-    def update(self, instance, validated_data):
-        super(RoleCreateSerializer, self).update(instance, validated_data)
+
+class RoleRetrieveSerializer(serializers.ModelSerializer):
+
+    groups = GroupSerializer(many=False, read_only=True)
+    # groups = serializers.SlugRelatedField(read_only=True,
+    #                                       slug_field='groups')
+
+    class Meta:
+        model = Role
+        fields = ('groups', 'has_data_display', 'has_classification',
+                  'has_problem', 'has_terminology', 'has_user', 'has_role')
+

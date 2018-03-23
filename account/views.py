@@ -13,7 +13,8 @@ from rest_framework.views import APIView
 
 from account.models import Role
 from account.serializers import AccountSerializer, RoleSerializer, \
-    RoleCreateSerializer, AccountCreateSerializer, AccountUpdateSerializer
+    RoleCreateSerializer, AccountCreateSerializer, AccountUpdateSerializer, \
+    RoleRetrieveSerializer
 from common.paginations import Pagination20
 from sso.models import PermissionsUser
 from terminology.models import Terminology
@@ -182,7 +183,7 @@ class RoleView(mixins.CreateModelMixin,
     """
     角色管理CRUD
     """
-    queryset = Role.objects.filter(is_deleted=False)
+    queryset = Role.objects.filter(is_deleted=False).order_by('id')
     serializer_class = RoleSerializer
     pagination_class = Pagination20
     # :todo 加上
@@ -194,9 +195,15 @@ class RoleView(mixins.CreateModelMixin,
 
         with transaction.atomic():
             g = Group.objects.create(name=ser.data['name'])
-            Role.objects.create(group=g,
-                                has_frontend=ser.data['has_frontend'],
-                                has_backend=ser.data['has_backend'])
+            Role.objects.create(
+                groups=g,
+                has_data_display=ser.data['has_data_display'],
+                has_classification=ser.data['has_classification'],
+                has_problem=ser.data['has_problem'],
+                has_terminology=ser.data['has_terminology'],
+                has_user=ser.data['has_user'],
+                has_role=ser.data['has_role'],
+            )
 
         return Response(data={'error_code': 0,
                               'data': ser.data},
@@ -222,9 +229,12 @@ class RoleView(mixins.CreateModelMixin,
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        serializer = self.get_serializer(instance)
+        self.serializer_class = RoleRetrieveSerializer
+        ser = self.get_serializer(instance, data=request.data)
+        ser.is_valid(raise_exception=True)
+
         return Response(data={'error_code': 0,
-                              'data': serializer.data},
+                              'data': ser.data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
@@ -234,8 +244,21 @@ class RoleView(mixins.CreateModelMixin,
         instance = self.get_object()
 
         with transaction.atomic():
-            Group.objects.filter(role=instance).update(
-                name=ser.data['name'])
+            try:
+                g = Group.objects.get(name=ser.data.get('name', ''))
+            except Group.DoesNotExist:
+                pass
+            else:
+                if g.id != instance.groups.id:
+                    raise ValidationError
+            instance.groups.name = ser.data['name']
+            instance.has_data_display = ser.data['has_data_display']
+            instance.has_classification = ser.data['has_classification']
+            instance.has_problem = ser.data['has_problem']
+            instance.has_terminology = ser.data['has_terminology']
+            instance.has_user = ser.data['has_user']
+            instance.has_role = ser.data['has_role']
+            instance.groups.save()
             instance.save()
 
         return Response(data={'error_code': 0,

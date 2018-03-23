@@ -19,7 +19,7 @@ class SearchView(GenericAPIView):
         ser.is_valid(raise_exception=True)
 
         queryset = PermissionsUser.objects.using('sso').filter(
-            name__icontains=ser.data['name'])
+            name__icontains=ser.data['name']).order_by('id')
 
         page = self.paginate_queryset(queryset)
         if page is not None:
