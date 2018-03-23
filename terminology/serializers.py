@@ -2,12 +2,13 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from terminology.models import Terminology
+from terminology.models import Terminology, Platform, Module
 
 
 class TerminologyListSerializer(serializers.Serializer):
 
     cla = serializers.CharField(max_length=10)
+    q = serializers.CharField(max_length=100, required=False)
 
     def validate_cla(self, value):
         if value not in ('平台', '模块', '关键词'):
@@ -74,3 +75,46 @@ class TerminologyUpdateSerializer(serializers.ModelSerializer):
         fields = ('name',)
 
 
+class PlatformSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Platform
+        fields = ('id', 'name', 'created', 'updated')
+
+
+class ModulePlatformSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Module
+        fields = ('id', 'name')
+
+
+class PlatformRetrieveSerializer(serializers.ModelSerializer):
+
+    module = ModulePlatformSerializer(many=True)
+
+    class Meta:
+        model = Platform
+        fields = ('name', 'module')
+
+
+class PlatformCreateUpdateSerializer(serializers.ModelSerializer):
+    module = serializers.ListField(required=False)
+
+    class Meta:
+        model = Platform
+        fields = ('name', 'module')
+
+
+class ModuleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Module
+        fields = ('id', 'name')
+
+
+class ModuleCreateUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Module
+        fields = ('name',)

@@ -1,30 +1,19 @@
 from django.conf.urls import url, include
 from rest_framework import routers
 
-from terminology.views import TerminologyView
+from terminology.views import TerminologyView, PlatformView, ModuleView
 
 
 terminology_router = routers.SimpleRouter()
-terminology_router.register(r'', TerminologyView)
+terminology_router.register(r't', TerminologyView)
+platform_router = routers.SimpleRouter()
+platform_router.register(r'platform', PlatformView)
+module_router = routers.SimpleRouter()
+module_router.register(r'module', ModuleView)
 
 
 urlpatterns = [
-    url(r'^', include(terminology_router.urls, namespace='terminology')),
-    # url(r'',
-    #     include([
-    #         # url(r'^org/$',
-    #         #     TeacherOrgView.as_view(),
-    #         #     name="org"),
-    #         # url(r'^bind/$',
-    #         #     TeacherBindCourse.as_view(),
-    #         #     name="teacher_bind_course"),
-    #         # url(r'^(?P<course_id>[^/.]+)/bind/$',
-    #         #     TeacherBindCourse.as_view(),
-    #         #     name="course_teachers"),
-    #         # url(r'^(?P<course_id>[^/.]+)/bind/(?P<tid>\d+)/$',
-    #         #     TeacherBindCourse.as_view(),
-    #         #     name="teacher_bind_course"),
-    #
-    #             ] + terminology_router.urls,
-    #             namespace="terminology")),
+    url(r'', include(terminology_router.urls, namespace='terminology')),
+    url(r'', include(platform_router.urls, namespace='platform')),
+    url(r'', include(module_router.urls, namespace='module')),
 ]

@@ -20,3 +20,38 @@ class Terminology(MyCUModelBase):
 
     def __str__(self):
         return "Terminology of {} - {}".format(self.name, self.classification)
+
+
+class Module(MyCUModelBase):
+    """
+    模块管理
+    """
+    name = models.CharField('名称', max_length=100, unique=True)
+    is_deleted = models.BooleanField('软删除', default=False)
+
+    class Meta:
+        db_table = 'module'
+        verbose_name = '模块管理'
+        verbose_name_plural = '模块管理'
+
+    def __str__(self):
+        return 'Module of {}'.format(self.name)
+
+
+class Platform(MyCUModelBase):
+    """
+    平台管理
+    """
+    name = models.CharField('名称', max_length=100, unique=True)
+    module = models.ManyToManyField(Module, verbose_name='包含模块')
+    is_deleted = models.BooleanField('软删除', default=False)
+
+    class Meta:
+        db_table = 'platform'
+        verbose_name = '平台管理'
+        verbose_name_plural = '平台管理'
+
+    def __str__(self):
+        return 'Platform of {}'.format(self.name)
+
+
