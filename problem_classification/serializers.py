@@ -10,6 +10,7 @@ from script.models import Script
 #     class Meta:
 #         model = Script
 #         fields = ('count',)
+from terminology.models import Module
 
 
 class ProblemClaCreateSerializer(serializers.ModelSerializer):
@@ -38,7 +39,7 @@ class ProblemClaSerializer(serializers.ModelSerializer):
 class ScriptRetriveSer(serializers.ModelSerializer):
     class Meta:
         model = Script
-        fields = ('id', 'run_command')
+        fields = ('id', 'run_command', 'name')
 
 
 class ProblemClaRetrieveSerializer(serializers.ModelSerializer):
@@ -56,3 +57,8 @@ class ProblemClaUpdateSerializer(serializers.ModelSerializer):
         fields = ('name',)
 
 
+class ModuleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Module
+        fields = ('id', 'name')

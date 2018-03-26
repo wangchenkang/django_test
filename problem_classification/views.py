@@ -68,9 +68,10 @@ class ProblemClaView(mixins.CreateModelMixin,
         self.serializer_class = ProblemClaRetrieveSerializer
         instance = self.get_object()
 
-        serializer = self.get_serializer(instance)
+        ser = self.get_serializer(instance)
+        ser.data['script']['name'] = ser.data['script']['name'].split(',')
         return Response(data={'error_code': 0,
-                              'data': serializer.data},
+                              'data': ser.data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
