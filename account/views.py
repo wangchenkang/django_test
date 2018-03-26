@@ -7,6 +7,7 @@ from django.db import IntegrityError, transaction
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins, viewsets, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import empty
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -67,8 +68,19 @@ class LoginView(APIView):
                     user.save()
                     login(request, user)
 
+        instance = Role.objects.filter(
+            is_deleted=False,
+            groups__in=request.user.groups.values_list('id', flat=True)
+        ).order_by('id')
+
+        if len(instance):
+            ser = RoleRetrieveSerializer(instance[0])
+            data = ser.data
+        else:
+            data = {}
+
         return Response(data={'error_code': 0,
-                              'data': {}},
+                              'data': data},
                         status=status.HTTP_200_OK)
 
 
