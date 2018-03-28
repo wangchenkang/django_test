@@ -113,7 +113,7 @@ class ProblemSerializer(serializers.ModelSerializer):
 
 
 class ProblemRetrieveSerializer(serializers.ModelSerializer):
-    classification = ProblemClaSer(many=True, read_only=True)
+    classification = ProblemClaSer()
     platforms = PlatformSer(many=True, read_only=True)
     modules = ModuleSer(many=True, read_only=True)
     reporter = UserInJiraSer()

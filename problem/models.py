@@ -45,7 +45,7 @@ class Problem(MyCUModelBase):
     """
     jira_code = models.CharField('jira键值', max_length=100, unique=True)
 
-    classification = models.ManyToManyField(ProblemCla, verbose_name='对应问题分类')
+    classification = models.OneToOneField(ProblemCla, verbose_name='对应问题分类')
     platforms = models.ManyToManyField(Platform, verbose_name='所属平台',
                                        related_name='platform')
     modules = models.ManyToManyField(Module, verbose_name='所属模块',
@@ -63,8 +63,8 @@ class Problem(MyCUModelBase):
     process_time = models.FloatField('处理时长', default=0, null=True,
                                      help_text='单位是小时，应在有end_time时计算')
 
-    reporter = models.OneToOneField(UserInJira, verbose_name='jira报告人',
-                                    related_name='reporter')
+    reporter = models.ForeignKey(UserInJira, verbose_name='jira报告人',
+                                 related_name='reporter')
     handler = models.ManyToManyField(UserInJira, verbose_name='处理人',
                                      related_name='handler',
                                      help_text='可能有多个人')
@@ -82,10 +82,10 @@ class Problem(MyCUModelBase):
 
     is_deleted = models.BooleanField('软删除', default=False)
 
-    rdm = models.OneToOneField(UserInJira, verbose_name='研发负责人',
-                               related_name='rdm', null=True)
-    pm = models.OneToOneField(UserInJira, verbose_name='产品负责人',
-                              related_name='pm', null=True)
+    rdm = models.ForeignKey(UserInJira, verbose_name='研发负责人',
+                            related_name='rdm', null=True)
+    pm = models.ForeignKey(UserInJira, verbose_name='产品负责人',
+                           related_name='pm', null=True)
 
     class Meta:
         db_table = 'problem'

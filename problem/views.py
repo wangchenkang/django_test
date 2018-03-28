@@ -70,6 +70,7 @@ class ProblemView(mixins.CreateModelMixin,
         with transaction.atomic():
             problem = Problem.objects.create(
                 jira_code=ser.data['jira_code'],
+                classification_id=ser.data['classification'],
                 tackle_status=ser.data['tackle_status'],
                 level=ser.data['level'],
                 description=ser.data['description'],
@@ -80,7 +81,6 @@ class ProblemView(mixins.CreateModelMixin,
                 pm=pm,
             )
 
-            problem.classification.add(*ser.data['classification'])
             problem.platforms.add(*ser.data['platforms'])
             problem.modules.add(*ser.data['modules'])
             problem.handler.add(*uij_id_list)
@@ -189,30 +189,33 @@ class ProblemView(mixins.CreateModelMixin,
 
         with transaction.atomic():
             instance.jira_code = ser.initial_data['jira_code']
+            instance.classification_id = ser.initial_data['classification']
             instance.tackle_status = ser.initial_data['tackle_status']
             instance.level = ser.initial_data['level']
             instance.description = ser.initial_data['description']
             instance.start_time = ser.initial_data['start_time']
-            instance.end_time = ser.initial_data['end_time']
             instance.reporter = reporter
             instance.rdm = rdm
             instance.pm = pm
 
-            instance.classification.clear()
             instance.platforms.clear()
             instance.modules.clear()
             instance.handler.clear()
             instance.influenced_university.clear()
 
-            instance.classification.add(*ser.initial_data['classification'])
             instance.platforms.add(*ser.initial_data['platforms'])
             instance.modules.add(*ser.initial_data['modules'])
             instance.handler.add(*uij_id_list)
             instance.influenced_university.add(*unij_id_list)
 
-            if ser.initial_data['end_time']:
-                instance.process_time = (instance.updated - instance.created
-                                         ).seconds / 3600
+            if ser.initial_data['end_time'] and \
+                    ser.initial_data['end_time'] != instance.end_time:
+                # end_time更新时操作，其他字段更新时不算process_time
+                diff = instance.updated - instance.created
+                process_time = round(diff.seconds / 3600, 1) + diff.days * 24
+                instance.process_time = process_time
+
+            instance.end_time = ser.initial_data['end_time']
 
             instance.save()
 
