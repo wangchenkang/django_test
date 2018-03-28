@@ -86,6 +86,13 @@ class ProblemView(mixins.CreateModelMixin,
             problem.handler.add(*uij_id_list)
             problem.influenced_university.add(*unij_id_list)
 
+            if ser.data['end_time']:
+                start_time = datetime.strptime(ser.data['start_time'], '%Y-%m-%d')
+                end_time = datetime.strptime(ser.data['end_time'], '%Y-%m-%d')
+                if (end_time - start_time).days > 0:
+                    problem.process_time = (end_time - start_time).days * 24
+                    problem.save()
+
         return Response(data={'error_code': 0,
                               'data': {}},
                         status=status.HTTP_200_OK)
@@ -202,6 +209,10 @@ class ProblemView(mixins.CreateModelMixin,
             instance.modules.add(*ser.initial_data['modules'])
             instance.handler.add(*uij_id_list)
             instance.influenced_university.add(*unij_id_list)
+
+            if ser.initial_data['end_time']:
+                instance.process_time = (instance.updated - instance.created
+                                         ).seconds / 3600
 
             instance.save()
 

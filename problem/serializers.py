@@ -109,7 +109,7 @@ class ProblemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Problem
         fields = ('id', 'jira_code', 'platforms', 'modules', 'process_time',
-                  'rdm', 'pm', 'start_time', 'end_time')
+                  'rdm', 'pm', 'start_time', 'end_time', 'process_time')
 
 
 class ProblemRetrieveSerializer(serializers.ModelSerializer):

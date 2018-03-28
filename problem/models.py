@@ -60,8 +60,8 @@ class Problem(MyCUModelBase):
 
     start_time = models.DateField('jira创建日期')
     end_time = models.DateField('jira完成日期', null=True)
-    process_time = models.PositiveIntegerField('处理时长', default=0, null=True,
-                                               help_text='单位是分钟，应在有end时计算')
+    process_time = models.FloatField('处理时长', default=0, null=True,
+                                     help_text='单位是小时，应在有end_time时计算')
 
     reporter = models.OneToOneField(UserInJira, verbose_name='jira报告人',
                                     related_name='reporter')
