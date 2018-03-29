@@ -127,13 +127,16 @@ class PlatformView(mixins.CreateModelMixin,
         ser = PlatformCreateUpdateSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
 
-        pf = Platform.objects.create(name=ser.data['name'])
         with transaction.atomic():
-            pf.module.clear()
-            pf.module.add(*ser.data['module'])
+            pf = Platform.objects.create(name=ser.data['name'])
+            created_list = []
+            for i in ser.data['module']:
+                created_list.append(Module(name=i['name'], platform=pf))
+            if created_list:
+                Module.objects.bulk_create(created_list)
 
         return Response(data={'error_code': 0,
-                              'data': ser.data},
+                              'data': {}},
                         status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
@@ -154,31 +157,31 @@ class PlatformView(mixins.CreateModelMixin,
 
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = PlatformRetrieveSerializer
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        pf = self.get_object()
+        modules = Module.objects.filter(
+            platform=pf).values('id', 'name', 'is_deleted')
+
         return Response(data={'error_code': 0,
-                              'data': serializer.data},
+                              'data': {
+                                  'name': pf.name,
+                                  'module': modules
+                              }},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         self.serializer_class = PlatformCreateUpdateSerializer
         partial = kwargs.pop('partial', False)
-        instance = self.get_object()
+        pf = self.get_object()
 
-        ser = self.get_serializer(instance, data=request.data,
+        ser = self.get_serializer(pf, data=request.data,
                                   partial=partial)
         ser.is_valid(raise_exception=True)
 
-        self.perform_update(ser)
+        pf.name = ser.data['name']
+        pf.save()
 
-        with transaction.atomic():
-            instance.module.clear()
-            instance.module.add(*ser.initial_data['module'])
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
+        for i in request.data['module']:
+            Module.objects.filter(pk=i['id']).update(is_deleted=i['is_deleted'])
 
         return Response(data={'error_code': 0,
                               'data': {}},
@@ -186,27 +189,25 @@ class PlatformView(mixins.CreateModelMixin,
 
     def destroy(self, request, *args, **kwargs):
         try:
-            instance = self.get_object()
+            pf = self.get_object()
         except Exception:
             return Response(data={'error_code': 0,
                                   'data': {}},
                             status=status.HTTP_200_OK)
 
-        instance.is_deleted = True
-        instance.save()
+        pf.is_deleted = True
+        pf.save()
+        Module.objects.filter(platform=pf).update(is_deleted=True)
+
         return Response(data={'error_code': 0,
                               'data': {}},
                         status=status.HTTP_200_OK)
 
 
-class ModuleView(mixins.CreateModelMixin,
-                 mixins.RetrieveModelMixin,
-                 mixins.UpdateModelMixin,
-                 mixins.ListModelMixin,
-                 mixins.DestroyModelMixin,
+class ModuleView(mixins.ListModelMixin,
                  viewsets.GenericViewSet):
     """
-    模块管理CRUD
+    模块管理
     """
     queryset = Module.objects.filter(is_deleted=False).order_by('id')
     serializer_class = ModuleSerializer
@@ -214,15 +215,15 @@ class ModuleView(mixins.CreateModelMixin,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
-    def create(self, request, *args, **kwargs):
-        ser = ModuleCreateUpdateSerializer(data=request.data)
-        ser.is_valid(raise_exception=True)
-
-        Module.objects.create(name=ser.data['name'])
-
-        return Response(data={'error_code': 0,
-                              'data': ser.data},
-                        status=status.HTTP_200_OK)
+    # def create(self, request, *args, **kwargs):
+    #     ser = ModuleCreateUpdateSerializer(data=request.data)
+    #     ser.is_valid(raise_exception=True)
+    #
+    #     Module.objects.create(name=ser.data['name'])
+    #
+    #     return Response(data={'error_code': 0,
+    #                           'data': ser.data},
+    #                     status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -240,43 +241,43 @@ class ModuleView(mixins.CreateModelMixin,
                               'data': ser.data},
                         status=status.HTTP_200_OK)
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(data={'error_code': 0,
-                              'data': serializer.data},
-                        status=status.HTTP_200_OK)
+    # def retrieve(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(instance)
+    #     return Response(data={'error_code': 0,
+    #                           'data': serializer.data},
+    #                     status=status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
-        self.serializer_class = ModuleCreateUpdateSerializer
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
+    # def update(self, request, *args, **kwargs):
+    #     self.serializer_class = ModuleCreateUpdateSerializer
+    #     partial = kwargs.pop('partial', False)
+    #     instance = self.get_object()
+    #
+    #     serializer = self.get_serializer(instance, data=request.data,
+    #                                      partial=partial)
+    #     serializer.is_valid(raise_exception=True)
+    #
+    #     self.perform_update(serializer)
+    #
+    #     if getattr(instance, '_prefetched_objects_cache', None):
+    #         # If 'prefetch_related' has been applied to a queryset, we need to
+    #         # forcibly invalidate the prefetch cache on the instance.
+    #         instance._prefetched_objects_cache = {}
+    #
+    #     return Response(data={'error_code': 0,
+    #                           'data': serializer.data},
+    #                     status=status.HTTP_200_OK)
 
-        serializer = self.get_serializer(instance, data=request.data,
-                                         partial=partial)
-        serializer.is_valid(raise_exception=True)
-
-        self.perform_update(serializer)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
-
-        return Response(data={'error_code': 0,
-                              'data': serializer.data},
-                        status=status.HTTP_200_OK)
-
-    def destroy(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-        except Exception:
-            return Response(data={'error_code': 0,
-                                  'data': {}},
-                            status=status.HTTP_200_OK)
-
-        instance.is_deleted = True
-        instance.save()
-        return Response(data={'error_code': 0,
-                              'data': {}},
-                        status=status.HTTP_200_OK)
+    # def destroy(self, request, *args, **kwargs):
+    #     try:
+    #         instance = self.get_object()
+    #     except Exception:
+    #         return Response(data={'error_code': 0,
+    #                               'data': {}},
+    #                         status=status.HTTP_200_OK)
+    #
+    #     instance.is_deleted = True
+    #     instance.save()
+    #     return Response(data={'error_code': 0,
+    #                           'data': {}},
+    #                     status=status.HTTP_200_OK)

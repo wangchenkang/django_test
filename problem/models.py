@@ -72,7 +72,7 @@ class Problem(MyCUModelBase):
     # handler = models.CharField('处理人', max_length=150, null=True)
 
     influenced_university = models.ManyToManyField(
-        UniversityInJira, verbose_name='影响学校', null=True,
+        UniversityInJira, verbose_name='影响学校',
         related_name='influenced_university')
     # influenced_id = models.ManyToManyField(UserInJira, verbose_name='影响用户id',
     #                                        related_name='influenced_id')
