@@ -211,6 +211,7 @@ class RoleView(mixins.CreateModelMixin,
                 groups=g,
                 has_data_display=ser.data['has_data_display'],
                 has_classification=ser.data['has_classification'],
+                has_cycle_task=ser.data['has_cycle_task'],
                 has_problem=ser.data['has_problem'],
                 has_terminology=ser.data['has_terminology'],
                 has_user=ser.data['has_user'],
@@ -228,6 +229,9 @@ class RoleView(mixins.CreateModelMixin,
         if page is not None:
             ser = self.get_serializer(page, many=True)
             p = self.get_paginated_response(ser.data)
+            for i in p['data']:
+                i['name'] = i['groups']
+                del i['groups']
             p.update({'error_code': 0})
             return Response(data=p,
                             status=status.HTTP_200_OK)
@@ -266,6 +270,7 @@ class RoleView(mixins.CreateModelMixin,
             instance.groups.name = ser.data['name']
             instance.has_data_display = ser.data['has_data_display']
             instance.has_classification = ser.data['has_classification']
+            instance.has_cycle_task = ser.data['has_cycle_task']
             instance.has_problem = ser.data['has_problem']
             instance.has_terminology = ser.data['has_terminology']
             instance.has_user = ser.data['has_user']

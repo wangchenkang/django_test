@@ -16,10 +16,6 @@ class GroupSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     groups = GroupSerializer(many=True, read_only=True)
 
-    # groups = serializers.SlugRelatedField(slug_field='name',
-    #                                       many=True,
-    #                                       read_only=True)
-
     class Meta:
         model = User
         fields = ('id', 'username', 'groups')
@@ -59,23 +55,11 @@ class AccountUpdateSerializer(serializers.ModelSerializer):
 
 class RoleSerializer(serializers.ModelSerializer):
     groups = serializers.SlugRelatedField(read_only=True,
-                                         slug_field='name')
+                                          slug_field='name')
 
     class Meta:
         model = Role
         fields = ('id', 'groups')
-
-
-# class RoleCreateSerializer(serializers.Serializer):
-#     name = serializers.CharField(max_length=80)
-#     has_frontend = serializers.BooleanField(default=True)
-#     has_backend = serializers.BooleanField(default=False)
-#
-#     def create(self, validated_data):
-#         super(RoleCreateSerializer, self).create(validated_data)
-#
-#     def update(self, instance, validated_data):
-#         super(RoleCreateSerializer, self).update(instance, validated_data)
 
 
 class RoleCreateSerializer(serializers.ModelSerializer):
@@ -85,17 +69,17 @@ class RoleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = ('name', 'has_data_display', 'has_classification',
-                  'has_problem', 'has_terminology', 'has_user', 'has_role')
+                  'has_cycle_task', 'has_problem', 'has_terminology',
+                  'has_user', 'has_role')
 
 
 class RoleRetrieveSerializer(serializers.ModelSerializer):
 
     groups = GroupSerializer(many=False, read_only=True)
-    # groups = serializers.SlugRelatedField(read_only=True,
-    #                                       slug_field='groups')
 
     class Meta:
         model = Role
         fields = ('groups', 'has_data_display', 'has_classification',
-                  'has_problem', 'has_terminology', 'has_user', 'has_role')
+                  'has_cycle_task', 'has_problem', 'has_terminology',
+                  'has_user', 'has_role')
 

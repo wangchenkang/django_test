@@ -8,6 +8,7 @@ class Role(models.Model):
     groups = models.OneToOneField(Group, verbose_name='分组')
     has_data_display = models.BooleanField('数据展示', default=True)
     has_classification = models.BooleanField('类别管理', default=False)
+    has_cycle_task = models.BooleanField('任务管理', default=False)
     has_problem = models.BooleanField('问题管理', default=False)
     has_terminology = models.BooleanField('词库管理', default=False)
     has_user = models.BooleanField('用户管理', default=False)
