@@ -1,4 +1,5 @@
 # coding=utf-8
+import re
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -30,17 +31,18 @@ class ProblemQuerySerializer(serializers.Serializer):
     jira_code = serializers.ListField(required=False)
     start_time = serializers.DateField(required=False)
     end_time = serializers.DateField(required=False)
-    reporter = serializers.ListField(child=serializers.IntegerField(),
-                                     required=False)
-    handler = serializers.ListField(child=serializers.IntegerField(),
-                                    required=False)
-    rdm = serializers.ListField(child=serializers.IntegerField(),
-                                required=False)
-    pm = serializers.ListField(child=serializers.IntegerField(),
-                               required=False)
+    reporter = serializers.CharField(required=False)
+    handler = serializers.CharField(required=False)
+    rdm = serializers.CharField(required=False)
+    pm = serializers.CharField(required=False)
 
     def get_data(self):
         return self._validated_data
+
+    @staticmethod
+    def regex(sss):
+        clean_sep = re.sub(r'(，|,|\.|。|;|、|；)', ',', sss).split(',')
+        return list(set(clean_sep))
 
     def validate_jira_code(self, value):
         return {'jira_code__icontains': value}
@@ -52,16 +54,16 @@ class ProblemQuerySerializer(serializers.Serializer):
         return {'end_time__lte': value}
 
     def validate_reporter(self, value):
-        return {'reporter__in': value}
+        return {'reporter__username__in': self.regex(value)}
 
     def validate_handler(self, value):
-        return {'handler__id__in': value}
+        return {'handler__username__in': self.regex(value)}
 
     def validate_rdm(self, value):
-        return {'rdm__in': value}
+        return {'rdm__username__in': self.regex(value)}
 
     def validate_pm(self, value):
-        return {'pm__in': value}
+        return {'pm__username__in': self.regex(value)}
 
     def create(self, validated_data):
         super(ProblemQuerySerializer, self).create(validated_data)

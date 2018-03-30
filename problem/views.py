@@ -1,4 +1,5 @@
 # coding=utf-8
+import copy
 import operator
 from functools import reduce
 from datetime import datetime
@@ -113,14 +114,17 @@ class ProblemView(mixins.CreateModelMixin,
                     else:
                         queries &= models.Q(**{k2: v2[0]})
                 elif len(v2) > 1:
-                    # 同一个搜索条件内的用或
-                    tmp_q = 0
-                    for q in [models.Q(**{k2: i}) for i in v2]:
-                        if tmp_q == 0:
-                            tmp_q = q
-                        else:
-                            tmp_q |= q
-                    queries &= tmp_q
+                    if '__in' in k2:
+                        queries &= models.Q(**{k2: v2})
+                    else:
+                        # 同一个搜索条件内的用或
+                        tmp_q = 0
+                        for q in [models.Q(**{k2: i}) for i in v2]:
+                            if tmp_q == 0:
+                                tmp_q = q
+                            else:
+                                tmp_q |= q
+                        queries &= tmp_q
             else:
                 queries &= models.Q(**v)
 
@@ -134,6 +138,13 @@ class ProblemView(mixins.CreateModelMixin,
             ser = self.get_serializer(page, many=True)
             p = self.get_paginated_response(ser.data)
             p.update({'error_code': 0})
+            # 修改返回值格式
+            for i in p['data']:
+                for k, v in i.items():
+                    if k == 'rdm':
+                        i[k] = i[k]['username']
+                    elif k == 'pm':
+                        i[k] = i[k]['username']
             return Response(data=p,
                             status=status.HTTP_200_OK)
 
@@ -148,8 +159,28 @@ class ProblemView(mixins.CreateModelMixin,
         instance = self.get_object()
 
         serializer = self.get_serializer(instance)
+        # 修改返回值格式
+        data = copy.deepcopy(serializer.data)
+        for k, v in data.items():
+            if k == 'reporter':
+                data[k] = data[k]['username']
+            elif k == 'handler':
+                tmp = []
+                for i in v:
+                    tmp.append(i['username'])
+                data[k] = ','.join(tmp)
+            elif k == 'influenced_university':
+                tmp = []
+                for i in v:
+                    tmp.append(i['name'])
+                data[k] = ','.join(tmp)
+            elif k == 'rdm':
+                data[k] = data[k]['username']
+            elif k == 'pm':
+                data[k] = data[k]['username']
+
         return Response(data={'error_code': 0,
-                              'data': serializer.data},
+                              'data': data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
