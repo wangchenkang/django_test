@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from celery.schedules import crontab
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -161,3 +163,30 @@ STATIC_SERVER = {
     'PUBLIC_HOST': 'http://storage.xuetangx.info',
     'PATH_PREFIX': '/data/public',
 }
+
+
+# 执行脚本的服务器
+EXECUTE_SERVER = [
+    'localhost'
+]
+
+
+CELERY_BROKER_URL = 'amqp://huntingtracker:huntingtracker@localhost:5672//'
+
+CELERY_BEAT_SCHEDULE = {
+    'every-1-minute': {
+        'task': 'cycle_task.tasks.ttt',
+        # 'schedule': 10.0,
+        'schedule': 63
+    },
+    'every-hour-begin': {
+        'task': 'cycle_task.tasks.clean',
+        'schedule': crontab(hour='*/1'),
+    }
+}
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERYD_PREFETCH_MULTIPLIER = 1
+
+

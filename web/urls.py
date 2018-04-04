@@ -30,5 +30,6 @@ urlpatterns = [
                                   namespace='problem_cla')),
     url(r'^problem/', include('problem.urls', namespace='problem')),
     url(r'^cycle_task/', include('cycle_task.urls', namespace='cycle_task')),
+    url(r'^graph/', include('graph.urls', namespace='graph')),
     url(r'^script/', include('script.urls', namespace='script')),
 ]

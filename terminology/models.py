@@ -46,7 +46,8 @@ class Module(MyCUModelBase):
     name = models.CharField('名称', max_length=100)
     is_deleted = models.BooleanField('软删除', default=False)
     platform = models.ForeignKey(Platform, related_name='platforms',
-                                 verbose_name='所属平台')
+                                 verbose_name='所属平台',
+                                 on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'module'

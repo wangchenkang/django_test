@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 from django.db import IntegrityError, transaction
 from rest_framework import mixins, viewsets, status, filters
 from rest_framework.exceptions import ValidationError
@@ -12,6 +13,23 @@ from cycle_task.serializers import \
     CycleTaskCreateSerializer, CycleTaskSerializer, CycleTaskListSerializer, \
     ProblemClaSer, CycleTaskRetrieveSerializer
 from problem_classification.models import ProblemCla
+
+
+class TestView(APIView):
+    http_method_names = ('get',)
+
+    def get(self, request):
+        # :todo 要做实验 创建目录、删除、下文件
+        import errno, shutil
+        db_path = '{}/new/hunting_tracker/cycle_task/'.format('/tmp')
+        try:
+            os.makedirs(db_path)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                shutil.rmtree(db_path)
+                os.makedirs(db_path)
+
+        return Response(data={}, status=status.HTTP_200_OK)
 
 
 class CycleTaskView(mixins.CreateModelMixin,
@@ -151,3 +169,13 @@ class AvailableProblemClaView(GenericAPIView):
                               'data': ser.data},
                         status=status.HTTP_200_OK)
 
+
+class CycleTaskResultView(APIView):
+    http_method_names = ('post',)
+
+    def post(self, request):
+        CycleTask.objects.filter(pk=request.data.get('id')).update(
+            result=request.data.get('data')
+        )
+
+        return Response(data={}, status=status.HTTP_200_OK)

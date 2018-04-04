@@ -4,6 +4,7 @@ from common.modelbase import (MyModelBase, MyCUModelBase, MyCModelBase,
                               TinyIntegerField, PositiveTinyIntegerField,
                               PositiveBigIntegerField)
 from problem_classification.models import ProblemCla
+from script.models import Script
 
 
 class CycleTask(MyCUModelBase):
@@ -11,7 +12,8 @@ class CycleTask(MyCUModelBase):
     脚本管理
     """
     name = models.CharField('名称', max_length=100, unique=True)
-    classification = models.OneToOneField(ProblemCla, verbose_name='对应问题分类')
+    classification = models.OneToOneField(ProblemCla, verbose_name='对应问题分类',
+                                          on_delete=models.CASCADE)
 
     start_time = models.DateTimeField('启动时间', null=True)
     next_time = models.DateTimeField('下一次执行的时间', null=True,
@@ -28,6 +30,8 @@ class CycleTask(MyCUModelBase):
     is_deleted = models.BooleanField('软删除', default=False)
 
     description = models.CharField('备注信息', max_length=400, default='')
+    pid = models.IntegerField('执行脚本的进程id', default=-100000)
+    result = models.TextField('脚本返回值', default={})
 
     class Meta:
         db_table = 'cycle_task'

@@ -5,7 +5,8 @@ from django.db import models
 
 class Role(models.Model):
 
-    groups = models.OneToOneField(Group, verbose_name='分组')
+    groups = models.OneToOneField(Group, verbose_name='分组',
+                                  on_delete=models.CASCADE)
     has_data_display = models.BooleanField('数据展示', default=True)
     has_classification = models.BooleanField('类别管理', default=False)
     has_cycle_task = models.BooleanField('任务管理', default=False)

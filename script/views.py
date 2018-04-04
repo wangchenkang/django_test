@@ -65,7 +65,7 @@ class UploadView(APIView):
         if not script_id:
             script = Script.objects.create(
                 name=','.join([i['file_name'] for i in success_file_list]),
-                path='{}/{}/{}'.format(
+                path='{}/{}/{}/'.format(
                     settings.STATIC_SERVER['PATH_PREFIX'],
                     settings.STATIC_SERVER['FOLDER'],
                     folder_name),
@@ -119,7 +119,7 @@ class DownloadView(GenericAPIView):
         :return:
         """
         script = self.get_object()
-        folder_name = os.path.basename(script.path)
+        folder_name = os.path.basename(script.path[:-1])
 
         single_file = request.query_params.get('name', None)
 

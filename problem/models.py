@@ -45,7 +45,8 @@ class Problem(MyCUModelBase):
     """
     jira_code = models.CharField('jira键值', max_length=100, unique=True)
 
-    classification = models.ForeignKey(ProblemCla, verbose_name='对应问题分类')
+    classification = models.ForeignKey(ProblemCla, verbose_name='对应问题分类',
+                                       on_delete=models.CASCADE)
     platforms = models.ManyToManyField(Platform, verbose_name='所属平台',
                                        related_name='platform')
     modules = models.ManyToManyField(Module, verbose_name='所属模块',

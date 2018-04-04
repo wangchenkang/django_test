@@ -33,6 +33,9 @@ class ProblemClaView(mixins.CreateModelMixin,
                 run_command=ser.data['run_command']).id
         else:
             script_id = ser.data['script']
+            s = Script.objects.get(pk=script_id)
+            s.run_command = ser.data['run_command']
+            s.save()
 
         ProblemCla.objects.create(
             name=ser.data['name'],
