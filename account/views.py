@@ -1,13 +1,11 @@
 # coding=utf-8
+import copy
 import hashlib
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import AnonymousUser, User, Group
 from django.db import IntegrityError, transaction
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework import mixins, viewsets, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import empty
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -18,18 +16,7 @@ from account.serializers import AccountSerializer, RoleSerializer, \
     RoleRetrieveSerializer
 from common.paginations import Pagination20
 from sso.models import PermissionsUser
-from terminology.models import Terminology
-from terminology.serializers import TerminologySerializer, \
-    TerminologyListSerializer, TerminologyCreateSerializer, \
-    TerminologyRetrieveSerializer, TerminologyUpdateSerializer
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.sessions.middleware import SessionMiddleware
-from rest_framework.authentication import SessionAuthentication
-from django.middleware.csrf import CsrfViewMiddleware
-from django.middleware.security import SecurityMiddleware
-from django.middleware.common import CommonMiddleware
 
 
 class TestView(APIView):
@@ -38,6 +25,41 @@ class TestView(APIView):
 
     def post(self, request):
         return Response(data={'msg': 'test'}, status=status.HTTP_200_OK)
+
+
+class CheckView(APIView):
+    http_method_names = ('get',)
+
+    def get(self, request):
+        # 看用户的登录状态
+        if isinstance(request.user, AnonymousUser):
+            return Response(data={'error_code': 1,
+                                  'msg': '用户登录状态过期',
+                                  'data': {}},
+                            status=status.HTTP_200_OK)
+        else:
+            instance = Role.objects.filter(
+                is_deleted=False,
+                groups__in=request.user.groups.values_list('id', flat=True)
+            ).order_by('id')
+
+            if len(instance):
+                ser = RoleRetrieveSerializer(instance[0])
+                # 格式转换
+                groups = ser.data['groups']
+                tmp = copy.deepcopy(ser.data)
+                del tmp['groups']
+                data = {
+                    'username': request.user.username,
+                    'groups': groups,
+                    'rights': tmp
+                }
+            else:
+                data = {}
+
+            return Response(data={'error_code': 0,
+                                  'data': data},
+                            status=status.HTTP_200_OK)
 
 
 class LoginView(APIView):
@@ -75,7 +97,15 @@ class LoginView(APIView):
 
         if len(instance):
             ser = RoleRetrieveSerializer(instance[0])
-            data = ser.data
+            # 格式转换
+            groups = ser.data['groups']
+            tmp = copy.deepcopy(ser.data)
+            del tmp['groups']
+            data = {
+                'username': username,
+                'groups': groups,
+                'rights': tmp
+            }
         else:
             data = {}
 
