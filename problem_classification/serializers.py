@@ -14,7 +14,7 @@ from terminology.models import Module
 
 
 class ProblemClaCreateSerializer(serializers.ModelSerializer):
-
+    script = serializers.CharField(allow_blank=True)
     run_command = serializers.CharField(max_length=100)
 
     class Meta:
@@ -43,7 +43,7 @@ class ScriptRetriveSer(serializers.ModelSerializer):
 
 
 class ProblemClaRetrieveSerializer(serializers.ModelSerializer):
-    script = ScriptRetriveSer()
+    # script = ScriptRetriveSer()
 
     class Meta:
         model = ProblemCla

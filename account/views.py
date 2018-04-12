@@ -278,9 +278,12 @@ class RoleView(mixins.CreateModelMixin,
         self.serializer_class = RoleRetrieveSerializer
         ser = self.get_serializer(instance, data=request.data)
         ser.is_valid(raise_exception=True)
+        data = copy.deepcopy(ser.data)
+        data['name'] = ser.data['groups']['name']
+        del data['groups']
 
         return Response(data={'error_code': 0,
-                              'data': ser.data},
+                              'data': data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):

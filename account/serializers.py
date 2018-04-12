@@ -79,7 +79,7 @@ class RoleRetrieveSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        fields = ('groups', 'has_data_display', 'has_classification',
+        fields = ('id', 'groups', 'has_data_display', 'has_classification',
                   'has_cycle_task', 'has_problem', 'has_terminology',
                   'has_user', 'has_role')
 

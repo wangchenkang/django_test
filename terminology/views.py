@@ -156,13 +156,13 @@ class PlatformView(mixins.CreateModelMixin,
                         status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
-        self.serializer_class = PlatformRetrieveSerializer
         pf = self.get_object()
         modules = Module.objects.filter(
             platform=pf).values('id', 'name', 'is_deleted')
 
         return Response(data={'error_code': 0,
                               'data': {
+                                  'id': pf.id,
                                   'name': pf.name,
                                   'module': modules
                               }},

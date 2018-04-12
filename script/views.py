@@ -92,7 +92,7 @@ class ScriptView(GenericAPIView):
 
     def get(self, request, pk):
         """
-        列出脚本的name
+        获取脚本信息
         :param request:
         :param pk:
         :return:
@@ -101,6 +101,8 @@ class ScriptView(GenericAPIView):
 
         return Response(data={'error_code': 0,
                               'data': {
+                                  'id': instance.id,
+                                  'run_command': instance.run_command,
                                   'name': instance.name.split(',')
                               }},
                         status=status.HTTP_200_OK)

@@ -31,11 +31,11 @@ class CycleTaskCreateSerializer(serializers.ModelSerializer):
 
 
 class CycleTaskRetrieveSerializer(serializers.ModelSerializer):
-    classification = ProblemClaSer()
+    # classification = ProblemClaSer()
 
     class Meta:
         model = CycleTask
-        fields = ('name', 'classification', 'start_time', 'cycle',
+        fields = ('id', 'name', 'classification', 'start_time', 'cycle',
                   'is_active', 'description')
 
 

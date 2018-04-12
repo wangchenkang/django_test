@@ -72,7 +72,7 @@ class ProblemClaView(mixins.CreateModelMixin,
         instance = self.get_object()
 
         ser = self.get_serializer(instance)
-        ser.data['script']['name'] = ser.data['script']['name'].split(',')
+        # ser.data['script']['name'] = ser.data['script']['name'].split(',')
         return Response(data={'error_code': 0,
                               'data': ser.data},
                         status=status.HTTP_200_OK)
