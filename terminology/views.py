@@ -3,6 +3,7 @@ from django.db import IntegrityError, transaction
 from rest_framework import mixins, viewsets, status, filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from common.paginations import Pagination20
 from terminology.models import Terminology, Platform, Module
@@ -281,3 +282,28 @@ class ModuleView(mixins.ListModelMixin,
     #     return Response(data={'error_code': 0,
     #                           'data': {}},
     #                     status=status.HTTP_200_OK)
+
+
+class ModulePlatformsView(APIView):
+    http_method_names = ('get',)
+
+    def get(self, request):
+        """
+        拼凑出module/platform的依赖关系组合列表
+        :param request:
+        :return:
+        """
+        q = request.GET.get('q', '')
+        modules = Module.objects.filter(
+            is_deleted=False).select_related('platform')
+        res_list = []
+        for m in modules:
+            if q in m.name or q in m.platform.name:
+                res_list.append({
+                    'id_pair': '{}/{}'.format(m.id, m.platform_id),
+                    'name_pair': '{}/{}'.format(m.name, m.platform.name)
+                })
+        return Response(data={'error_code': 0,
+                              'data': res_list},
+                        status=status.HTTP_200_OK)
+

@@ -1,7 +1,8 @@
 from django.conf.urls import url, include
 from rest_framework import routers
 
-from terminology.views import TerminologyView, PlatformView, ModuleView
+from terminology.views import TerminologyView, PlatformView, ModuleView, \
+    ModulePlatformsView
 
 
 # 先隐掉
@@ -15,6 +16,8 @@ module_router.register(r'module', ModuleView)
 
 urlpatterns = [
     # url(r'', include(terminology_router.urls, namespace='terminology')),
+    url(r'^module_platforms/$', ModulePlatformsView.as_view(),
+        name='module_platforms'),
     url(r'', include(platform_router.urls, namespace='platform')),
     url(r'', include(module_router.urls, namespace='module')),
 ]

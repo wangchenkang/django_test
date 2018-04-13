@@ -42,6 +42,13 @@ class ProblemView(mixins.CreateModelMixin,
         ser = ProblemCreateSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
 
+        module_set = set()
+        platform_set = set()
+        for i in ser.data['module_platforms']:
+            m, p = i.split('/')
+            module_set.add(m)
+            platform_set.add(p)
+
         regex = re.compile(r'(，|,|\.|。|;|、|；)')
         clean_sep = re.sub(regex, ',', ser.data['handler']).split(',')
         username_set = set(clean_sep)
@@ -82,8 +89,8 @@ class ProblemView(mixins.CreateModelMixin,
                 pm=pm,
             )
 
-            problem.platforms.add(*ser.data['platforms'])
-            problem.modules.add(*ser.data['modules'])
+            problem.platforms.add(*platform_set)
+            problem.modules.add(*module_set)
             problem.handler.add(*uij_id_list)
             problem.influenced_university.add(*unij_id_list)
 
@@ -156,14 +163,25 @@ class ProblemView(mixins.CreateModelMixin,
 
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = ProblemRetrieveSerializer
-        instance = self.get_object()
+        problem = self.get_object()
 
-        serializer = self.get_serializer(instance)
+        serializer = self.get_serializer(problem)
         # 修改返回值格式
-        data = copy.deepcopy(serializer.data)
-        for k, v in data.items():
+        tmp_data = copy.deepcopy(serializer.data)
+        data = {
+            'id': problem.id,
+            'jira_code': problem.jira_code,
+            'classification': problem.classification_id,
+            'module_platforms': [],
+            'tackle_status': problem.tackle_status,
+            'level': problem.level,
+            'description': problem.description,
+            'start_time': problem.start_time,
+            'end_time': problem.end_time,
+        }
+        for k, v in tmp_data.items():
             if k == 'reporter':
-                data[k] = data[k]['username']
+                data[k] = tmp_data[k]['username']
             elif k == 'handler':
                 tmp = []
                 for i in v:
@@ -175,21 +193,37 @@ class ProblemView(mixins.CreateModelMixin,
                     tmp.append(i['name'])
                 data[k] = ','.join(tmp)
             elif k == 'rdm':
-                data[k] = data[k]['username']
+                data[k] = tmp_data[k]['username']
             elif k == 'pm':
-                data[k] = data[k]['username']
+                data[k] = tmp_data[k]['username']
+        for m in problem.modules.all():
+            data['module_platforms'].append(
+                '{}/{}'.format(m.id, m.platform_id))
 
         return Response(data={'error_code': 0,
                               'data': data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        self.serializer_class = ProblemCreateSerializer
-        partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        ser = self.get_serializer(instance, data=request.data, partial=partial)
-        ser.is_valid(raise_exception=True)
+        ser = ProblemCreateSerializer(data=request.data)
+        try:
+            ser.is_valid(raise_exception=True)
+        except ValidationError as e:
+            # 这种纯手动验证要把这个error忽略掉
+            if 'jira_code' in e.args[0] and \
+                    instance.jira_code == request.data.get('jira_code'):
+                pass
+            else:
+                raise e
+
+        module_set = set()
+        platform_set = set()
+        for i in ser.data['module_platforms']:
+            m, p = i.split('/')
+            module_set.add(m)
+            platform_set.add(p)
 
         regex = re.compile(r'(，|,|\.|。|;|、|；)')
         clean_sep = re.sub(regex, ',', ser.initial_data['handler']).split(',')
@@ -234,8 +268,8 @@ class ProblemView(mixins.CreateModelMixin,
             instance.handler.clear()
             instance.influenced_university.clear()
 
-            instance.platforms.add(*ser.initial_data['platforms'])
-            instance.modules.add(*ser.initial_data['modules'])
+            instance.platforms.add(*platform_set)
+            instance.modules.add(*module_set)
             instance.handler.add(*uij_id_list)
             instance.influenced_university.add(*unij_id_list)
 

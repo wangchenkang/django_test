@@ -11,7 +11,7 @@ from terminology.models import Platform, Module
 class ProblemCreateSerializer(serializers.ModelSerializer):
 
     description = serializers.CharField(allow_blank=True)
-    platforms = serializers.ListField(allow_empty=True)
+    module_platforms = serializers.ListField(allow_empty=True)
     reporter = serializers.CharField(max_length=10)
     handler = serializers.CharField(allow_blank=True)
     influenced_university = serializers.CharField(allow_blank=True)
@@ -20,7 +20,7 @@ class ProblemCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Problem
-        fields = ('jira_code', 'classification', 'platforms', 'modules',
+        fields = ('jira_code', 'classification', 'module_platforms',
                   'tackle_status', 'level', 'description',
                   'start_time', 'end_time', 'reporter', 'handler',
                   'influenced_university', 'rdm', 'pm')
@@ -115,9 +115,9 @@ class ProblemSerializer(serializers.ModelSerializer):
 
 
 class ProblemRetrieveSerializer(serializers.ModelSerializer):
-    classification = ProblemClaSer()
-    platforms = PlatformSer(many=True, read_only=True)
-    modules = ModuleSer(many=True, read_only=True)
+    # classification = ProblemClaSer()
+    # platforms = PlatformSer(many=True, read_only=True)
+    # modules = ModuleSer(many=True, read_only=True)
     reporter = UserInJiraSer()
     handler = UserInJiraSer(many=True, read_only=True)
     influenced_university = UniversityInJiraSer(many=True, read_only=True)
@@ -126,10 +126,7 @@ class ProblemRetrieveSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Problem
-        fields = ('id', 'jira_code', 'classification', 'platforms', 'modules',
-                  'tackle_status', 'level', 'description',
-                  'start_time', 'end_time', 'reporter', 'handler',
-                  'influenced_university', 'rdm', 'pm')
+        fields = ('reporter', 'handler', 'influenced_university', 'rdm', 'pm')
 
 
 class ProblemClaUpdateSerializer(serializers.ModelSerializer):
