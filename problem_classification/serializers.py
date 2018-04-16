@@ -14,12 +14,12 @@ from terminology.models import Module
 
 
 class ProblemClaCreateSerializer(serializers.ModelSerializer):
-    script = serializers.CharField(allow_blank=True)
-    run_command = serializers.CharField(max_length=100)
+    run_command = serializers.CharField(max_length=100, required=False,
+                                        allow_blank=True)
 
     class Meta:
         model = ProblemCla
-        fields = ('name', 'is_active', 'description', 'script', 'run_command')
+        fields = ('name', 'is_active', 'description', 'run_command')
 
 
 class ScriptListSer(serializers.ModelSerializer):

@@ -1,4 +1,7 @@
 # coding=utf-8
+import copy
+
+from django.db import transaction
 from rest_framework import mixins, viewsets, status, filters
 from rest_framework.response import Response
 
@@ -24,15 +27,16 @@ class ProblemClaView(mixins.CreateModelMixin,
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         ser = ProblemClaCreateSerializer(data=request.data)
         ser.is_valid(raise_exception=True)
 
-        if not ser.data['script']:
+        if not request.data['script']:
             script_id = Script.objects.create(
                 run_command=ser.data['run_command']).id
         else:
-            script_id = ser.data['script']
+            script_id = request.data['script']
             s = Script.objects.get(pk=script_id)
             s.run_command = ser.data['run_command']
             s.save()
@@ -73,8 +77,14 @@ class ProblemClaView(mixins.CreateModelMixin,
 
         ser = self.get_serializer(instance)
         # ser.data['script']['name'] = ser.data['script']['name'].split(',')
+        data = copy.deepcopy(ser.data)
+        if instance.script:
+            data['run_command'] = instance.script.run_command
+        else:
+            data['run_command'] = ''
+
         return Response(data={'error_code': 0,
-                              'data': ser.data},
+                              'data': data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
@@ -82,14 +92,19 @@ class ProblemClaView(mixins.CreateModelMixin,
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        serializer = self.get_serializer(instance, data=request.data,
-                                         partial=partial)
-        serializer.is_valid(raise_exception=True)
+        ser = self.get_serializer(instance, data=request.data, partial=partial)
+        ser.is_valid(raise_exception=True)
 
-        if instance.script:
-            instance.script.run_command = serializer.initial_data.get('run_command', '')
+        if ser.initial_data.get('script', ''):
+            s = Script.objects.get(pk=ser.initial_data['script'])
+            s.run_command = ser.initial_data.get('run_command', '')
+            instance.script = s
             instance.script.save()
-        self.perform_update(serializer)
+        else:
+            instance.script = None
+
+        self.perform_update(ser)
+        instance.save()
 
         if getattr(instance, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
@@ -97,7 +112,7 @@ class ProblemClaView(mixins.CreateModelMixin,
             instance._prefetched_objects_cache = {}
 
         return Response(data={'error_code': 0,
-                              'data': serializer.data},
+                              'data': ser.data},
                         status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):

@@ -300,8 +300,8 @@ class ModulePlatformsView(APIView):
         for m in modules:
             if q in m.name or q in m.platform.name:
                 res_list.append({
-                    'id_pair': '{}/{}'.format(m.id, m.platform_id),
-                    'name_pair': '{}/{}'.format(m.name, m.platform.name)
+                    'id': '{}/{}'.format(m.id, m.platform_id),
+                    'name': '{}/{}'.format(m.name, m.platform.name)
                 })
         return Response(data={'error_code': 0,
                               'data': res_list},

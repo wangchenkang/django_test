@@ -14,7 +14,7 @@ class ProblemCla(MyCUModelBase):
     is_deleted = models.BooleanField('软删除', default=False)
     is_active = models.BooleanField('可否使用', default=True)
     script = models.OneToOneField(Script, verbose_name='对应脚本', null=True)
-    description = models.CharField('备注', max_length=200, default='')
+    description = models.CharField('备注', max_length=200, default='', blank=True)
 
     class Meta:
         db_table = 'problem_cla'
