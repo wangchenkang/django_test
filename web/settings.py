@@ -27,8 +27,10 @@ SECRET_KEY = 'z0lma)u2vzhs*5-3_2e^j)opymy1d4dv&15!lqlm0wza%%!ob^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.9.103', 'www.xuetangx.com']
+ALLOWED_HOSTS = ['192.168.9.103', 'www.xuetangx.com',
+                 'hunting-tracker', '127.0.0.1']
 
+APPEND_SLASH = False
 
 # Application definition
 
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     'cycle_task',
     'problem',
     'sso',
+    'graph',
 ]
 
 MIDDLEWARE = [
@@ -148,6 +151,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 REST_FRAMEWORK = {
