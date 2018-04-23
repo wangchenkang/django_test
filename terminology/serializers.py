@@ -76,6 +76,10 @@ class TerminologyUpdateSerializer(serializers.ModelSerializer):
 
 
 class PlatformSerializer(serializers.ModelSerializer):
+    created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",
+                                        read_only=True)
+    updated = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",
+                                        read_only=True)
 
     class Meta:
         model = Platform

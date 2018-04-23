@@ -15,6 +15,8 @@ class ProblemClaSer(serializers.ModelSerializer):
 
 class CycleTaskListSerializer(serializers.ModelSerializer):
     classification = ProblemClaSer()
+    start_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",
+                                           read_only=True)
 
     class Meta:
         model = CycleTask
@@ -23,6 +25,7 @@ class CycleTaskListSerializer(serializers.ModelSerializer):
 
 
 class CycleTaskCreateSerializer(serializers.ModelSerializer):
+    description = serializers.CharField(allow_blank=True)
 
     class Meta:
         model = CycleTask
@@ -32,6 +35,8 @@ class CycleTaskCreateSerializer(serializers.ModelSerializer):
 
 class CycleTaskRetrieveSerializer(serializers.ModelSerializer):
     # classification = ProblemClaSer()
+    start_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S",
+                                           read_only=True)
 
     class Meta:
         model = CycleTask

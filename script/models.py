@@ -9,7 +9,7 @@ class Script(MyCUModelBase):
     """
     脚本管理
     """
-    name = models.CharField('名称', max_length=50, default='')
+    name = models.CharField('名称', max_length=2000, default='')
     path = models.CharField('路径', max_length=100, default='',
                             help_text='脚本存储路径')
     run_command = models.CharField('命令', max_length=100,

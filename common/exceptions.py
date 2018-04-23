@@ -16,7 +16,7 @@ def custom_exception_handler(e, context):
         return Response(data={'error_code': 4,
                               # 'msg': e.detail,
                               'msg': '406 传参验证未通过',
-                              'data': {}},
+                              'data': {'detail': e.args[0]}},
                         status=status.HTTP_200_OK,)
 
     elif isinstance(e, IntegrityError):

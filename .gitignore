@@ -160,3 +160,6 @@ handled_url.txt
 .DS_Store
 
 *.html
+
+entry/static/
+static/

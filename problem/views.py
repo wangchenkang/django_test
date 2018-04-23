@@ -274,9 +274,13 @@ class ProblemView(mixins.CreateModelMixin,
             instance.influenced_university.add(*unij_id_list)
 
             if ser.initial_data['end_time'] and \
-                    ser.initial_data['end_time'] != instance.end_time:
+                    datetime.strptime(
+                        ser.initial_data['end_time'], '%Y-%m-%d'
+                    ) != instance.end_time:
                 # end_time更新时操作，其他字段更新时不算process_time
-                diff = instance.updated - instance.created
+                diff = datetime.strptime(
+                    ser.initial_data['end_time'], '%Y-%m-%d') - instance.created
+
                 process_time = round(diff.seconds / 3600, 1) + diff.days * 24
                 instance.process_time = process_time
 

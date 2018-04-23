@@ -4,6 +4,7 @@ from sso.models import PermissionsUser
 
 
 class SsoSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(allow_blank=True)
 
     class Meta:
         model = PermissionsUser

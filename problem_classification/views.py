@@ -92,18 +92,22 @@ class ProblemClaView(mixins.CreateModelMixin,
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        ser = self.get_serializer(instance, data=request.data, partial=partial)
-        ser.is_valid(raise_exception=True)
+        # 为了处理只更新is_active字段
+        if request.query_params.get('m', '') != 'patch':
+            ser = self.get_serializer(instance, data=request.data, partial=partial)
+            ser.is_valid(raise_exception=True)
 
-        if ser.initial_data.get('script', ''):
-            s = Script.objects.get(pk=ser.initial_data['script'])
-            s.run_command = ser.initial_data.get('run_command', '')
-            instance.script = s
-            instance.script.save()
+            if ser.initial_data.get('script', ''):
+                s = Script.objects.get(pk=ser.initial_data['script'])
+                s.run_command = ser.initial_data.get('run_command', '')
+                instance.script = s
+                instance.script.save()
+            else:
+                instance.script = None
+
+            self.perform_update(ser)
         else:
-            instance.script = None
-
-        self.perform_update(ser)
+            instance.is_active = request.data.get('is_active', False)
         instance.save()
 
         if getattr(instance, '_prefetched_objects_cache', None):
@@ -112,7 +116,7 @@ class ProblemClaView(mixins.CreateModelMixin,
             instance._prefetched_objects_cache = {}
 
         return Response(data={'error_code': 0,
-                              'data': ser.data},
+                              'data': {}},
                         status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):

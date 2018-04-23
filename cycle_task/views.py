@@ -97,14 +97,18 @@ class CycleTaskView(mixins.CreateModelMixin,
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
-        ser = self.get_serializer(instance, data=request.data, partial=partial)
-        ser.is_valid(raise_exception=True)
+        # 为了处理只更新is_active字段
+        if request.query_params.get('m', '') != 'patch':
+            ser = self.get_serializer(instance, data=request.data, partial=partial)
+            ser.is_valid(raise_exception=True)
 
-        self.perform_update(ser)
+            self.perform_update(ser)
 
-        instance.next_time = ser.data['start_time']
-        instance.status = '停止'
-        instance.count = 0
+            instance.next_time = ser.data['start_time']
+            instance.status = '停止'
+            instance.count = 0
+        else:
+            instance.is_active = request.data.get('is_active')
         instance.save()
 
         if getattr(instance, '_prefetched_objects_cache', None):
@@ -133,7 +137,8 @@ class CycleTaskView(mixins.CreateModelMixin,
 
 class AvailableProblemClaView(GenericAPIView):
     http_method_names = ('get',)
-    queryset = ProblemCla.objects.filter(is_deleted=False).order_by('id')
+    queryset = ProblemCla.objects.filter(
+        is_active=True, is_deleted=False).order_by('id')
     serializer_class = ProblemClaSer
     pagination_class = Pagination20
     filter_backends = (filters.SearchFilter,)
@@ -144,30 +149,41 @@ class AvailableProblemClaView(GenericAPIView):
         # 由于是OneToOneField，所以在此过滤掉不可选的
         cycle_task = CycleTask.objects.filter(
             is_deleted=False).values_list('classification')
-        problem_cla = ProblemCla.objects.filter(
-            is_deleted=False).values_list('id')
 
-        diff = set(problem_cla) - set(cycle_task)
-        diff_ids = [a[0] for a in diff]
+        cycle_task_set = set(ct[0] for ct in cycle_task)
 
         problem_cla = ProblemCla.objects.filter(
-            id__in=diff_ids, is_deleted=False)
+            is_active=True, is_deleted=False)
 
         queryset = self.filter_queryset(problem_cla)
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            ser = self.get_serializer(page, many=True)
-            p = self.get_paginated_response(ser.data)
-            p.update({'error_code': 0})
-            return Response(data=p,
-                            status=status.HTTP_200_OK)
+        # page = self.paginate_queryset(queryset)
+        # if page is not None:
+        res_list = []
+        for pc in queryset:
+            if pc.id in cycle_task_set:
+                res_list.append({
+                    'id': pc.id,
+                    'name': pc.name,
+                    'is_used': True,
+                })
+            else:
+                res_list.append({
+                    'id': pc.id,
+                    'name': pc.name,
+                    'is_used': False,
+                })
 
-        ser = self.get_serializer(queryset, many=True)
-
-        return Response(data={'error_code': 0,
-                              'data': ser.data},
+        # p = self.get_paginated_response(res_list)
+        # p.update({'error_code': 0})
+        return Response(data={'error_code': 0, 'data': res_list},
                         status=status.HTTP_200_OK)
+
+        # ser = self.get_serializer(queryset, many=True)
+        #
+        # return Response(data={'error_code': 0,
+        #                       'data': ser.data},
+        #                 status=status.HTTP_200_OK)
 
 
 class CycleTaskResultView(APIView):

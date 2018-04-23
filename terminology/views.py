@@ -178,11 +178,21 @@ class PlatformView(mixins.CreateModelMixin,
                                   partial=partial)
         ser.is_valid(raise_exception=True)
 
-        pf.name = ser.data['name']
+        pf.name = request.data['name']
         pf.save()
 
+        created_list = []
         for i in request.data['module']:
-            Module.objects.filter(pk=i['id']).update(is_deleted=i['is_deleted'])
+            if not i['id']:
+                # 新建
+                created_list.append(Module(name=i['name'], platform=pf))
+            else:
+                Module.objects.filter(pk=i['id']).update(
+                    name=i['name'],
+                    is_deleted=i['is_deleted'])
+
+        if created_list:
+            Module.objects.bulk_create(created_list)
 
         return Response(data={'error_code': 0,
                               'data': {}},
