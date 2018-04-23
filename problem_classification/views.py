@@ -21,7 +21,7 @@ class ProblemClaView(mixins.CreateModelMixin,
     """
     问题分类管理CRUD
     """
-    queryset = ProblemCla.objects.filter(is_deleted=False)
+    queryset = ProblemCla.objects.filter(is_deleted=False).order_by('id')
     serializer_class = ProblemClaSerializer
     pagination_class = Pagination20
     filter_backends = (filters.SearchFilter,)

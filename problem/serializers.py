@@ -17,6 +17,7 @@ class ProblemCreateSerializer(serializers.ModelSerializer):
     influenced_university = serializers.CharField(allow_blank=True)
     rdm = serializers.CharField(allow_blank=True)
     pm = serializers.CharField(allow_blank=True)
+    end_time = serializers.CharField(allow_blank=True)
 
     class Meta:
         model = Problem
