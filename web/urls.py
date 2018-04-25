@@ -16,11 +16,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.conf import settings
 from django.contrib import admin
-from entry.views import EntryView
+from entry.views import entry
 
 
 urlpatterns = [
-    url(r'^$', EntryView.as_view(), name='entry'),
+    # url(r'^$', EntryView.as_view(), name='entry'),
+    url(r'^$', entry, name='entry'),
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^account/', include('account.urls', namespace='account')),
