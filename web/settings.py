@@ -89,30 +89,57 @@ WSGI_APPLICATION = 'web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        "ENGINE": "django.db.backends.mysql",
-        "HOST": "mysql.hunting_tracker.info",
-        "NAME": "hunting_tracker",
-        "PASSWORD": "",
-        "PORT": "3306",
-        "USER": "root",
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+
+if DEBUG:
+    DATABASES = {
+        'default': {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": "mysql.hunting_tracker.info",
+            "NAME": "hunting_tracker",
+            "PASSWORD": "",
+            "PORT": "3306",
+            "USER": "root",
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+            },
         },
-    },
-    'sso': {
-        "ENGINE": "django.db.backends.mysql",
-        "HOST": "mysql.sso.info",
-        "NAME": "permissions",
-        "PASSWORD": "",
-        "PORT": "3306",
-        "USER": "root",
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+        'sso': {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": "mysql.sso.info",
+            "NAME": "permissions",
+            "PASSWORD": "",
+            "PORT": "3306",
+            "USER": "root",
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+            },
         },
-    },
-}
+    }
+else:
+    DATABASES = {
+        'default': {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": "htmysql.xuetangx.info",
+            "NAME": "hunting_tracker",
+            "PASSWORD": "x2le2r1936M",
+            "PORT": "3306",
+            "USER": "htuser",
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+            },
+        },
+        'sso': {
+            "ENGINE": "django.db.backends.mysql",
+            "HOST": "htmysql.xuetangx.info",
+            "NAME": "permissions",
+            "PASSWORD": "xuetangx.com168mysql",
+            "PORT": "3306",
+            "USER": "mysql_ro",
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+            },
+        },
+    }
 
 
 # Password validation
