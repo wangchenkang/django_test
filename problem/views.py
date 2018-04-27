@@ -75,6 +75,16 @@ class ProblemView(mixins.CreateModelMixin,
             unij, _ = UniversityInJira.objects.get_or_create(name=u)
             unij_id_list.append(unij.id)
 
+        if ser.data['end_time']:
+            start_time = datetime.strptime(ser.data['start_time'], '%Y-%m-%d')
+            end_time = datetime.strptime(ser.data['end_time'], '%Y-%m-%d')
+            if (end_time - start_time).days > 0:
+                process_time = (end_time - start_time).days * 24
+            else:
+                process_time = 8
+        else:
+            process_time = None
+
         with transaction.atomic():
             problem = Problem.objects.create(
                 jira_code=ser.data['jira_code'],
@@ -83,7 +93,7 @@ class ProblemView(mixins.CreateModelMixin,
                 level=ser.data['level'],
                 description=ser.data['description'],
                 start_time=ser.data['start_time'],
-                end_time=ser.data['end_time'] if ser.data['end_time'] else None,
+                end_time=process_time,
                 reporter=reporter,
                 rdm=rdm,
                 pm=pm,
@@ -94,12 +104,12 @@ class ProblemView(mixins.CreateModelMixin,
             problem.handler.add(*uij_id_list)
             problem.influenced_university.add(*unij_id_list)
 
-            if ser.data['end_time']:
-                start_time = datetime.strptime(ser.data['start_time'], '%Y-%m-%d')
-                end_time = datetime.strptime(ser.data['end_time'], '%Y-%m-%d')
-                if (end_time - start_time).days > 0:
-                    problem.process_time = (end_time - start_time).days * 24
-                    problem.save()
+            # if ser.data['end_time']:
+            #     start_time = datetime.strptime(ser.data['start_time'], '%Y-%m-%d')
+            #     end_time = datetime.strptime(ser.data['end_time'], '%Y-%m-%d')
+            #     if (end_time - start_time).days > 0:
+            #         problem.process_time = (end_time - start_time).days * 24
+            #         problem.save()
 
         return Response(data={'error_code': 0,
                               'data': {}},
