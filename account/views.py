@@ -132,7 +132,7 @@ class AccountView(mixins.CreateModelMixin,
     """
     user
     """
-    queryset = User.objects.filter(is_active=True).order_by('id')
+    queryset = User.objects.filter(is_active=True).exclude(pk=1).order_by('id')
     serializer_class = AccountSerializer
     pagination_class = Pagination20
     # :todo 加上
