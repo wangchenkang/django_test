@@ -8,6 +8,6 @@ django_settings = 'web.settings'
 work_class = 'gevent'
 workers = 1
 
-loglevel = 'debug'
+loglevel = 'info'
 accesslog = '/var/log/gunicorn/hunting_tracker/gunicorn_access.log'
 errorlog = '/var/log/gunicorn/hunting_tracker/gunicorn_error.log'
