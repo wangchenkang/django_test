@@ -289,11 +289,11 @@ class ProblemView(mixins.CreateModelMixin,
                         ser.initial_data['end_time'], '%Y-%m-%d'
                     ) != instance.end_time:
                 # end_time更新时操作，其他字段更新时不算process_time
-                diff = datetime.strptime(
-                    ser.initial_data['end_time'], '%Y-%m-%d') - instance.created
+                start_time = datetime.strptime(instance.start_time, '%Y-%m-%d')
+                end_time = datetime.strptime(
+                    ser.initial_data['end_time'], '%Y-%m-%d')
 
-                process_time = round(diff.seconds / 3600, 1) + diff.days * 24
-                instance.process_time = process_time
+                instance.process_time = (end_time - start_time).days * 24
 
             instance.end_time = ser.initial_data['end_time']
 
