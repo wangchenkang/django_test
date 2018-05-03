@@ -159,7 +159,7 @@ class PlatformView(mixins.CreateModelMixin,
     def retrieve(self, request, *args, **kwargs):
         pf = self.get_object()
         modules = Module.objects.filter(
-            platform=pf).values('id', 'name', 'is_deleted')
+            platform=pf, is_deleted=False).values('id', 'name', 'is_deleted')
 
         return Response(data={'error_code': 0,
                               'data': {

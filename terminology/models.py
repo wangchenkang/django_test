@@ -53,7 +53,7 @@ class Module(MyCUModelBase):
         db_table = 'module'
         verbose_name = '模块管理'
         verbose_name_plural = '模块管理'
-        unique_together = ('name', 'platform')
+        # unique_together = ('name', 'platform')
 
     def __str__(self):
         return 'Module of {}'.format(self.name)
