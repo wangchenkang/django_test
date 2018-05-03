@@ -10,7 +10,7 @@ class ProblemCla(MyCUModelBase):
     """
     类别管理
     """
-    name = models.CharField('名称', max_length=100, unique=True)
+    name = models.CharField('名称', max_length=100)
     is_deleted = models.BooleanField('软删除', default=False)
     is_active = models.BooleanField('可否使用', default=True)
     script = models.OneToOneField(Script, verbose_name='对应脚本', null=True)

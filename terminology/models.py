@@ -26,7 +26,7 @@ class Platform(MyCUModelBase):
     """
     平台管理
     """
-    name = models.CharField('名称', max_length=100, unique=True)
+    name = models.CharField('名称', max_length=100)
     # module = models.ManyToManyField(Module, verbose_name='包含模块')
     is_deleted = models.BooleanField('软删除', default=False)
 

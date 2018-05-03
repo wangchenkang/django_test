@@ -11,7 +11,7 @@ class CycleTask(MyCUModelBase):
     """
     脚本管理
     """
-    name = models.CharField('名称', max_length=100, unique=True)
+    name = models.CharField('名称', max_length=100)
     classification = models.OneToOneField(ProblemCla, verbose_name='对应问题分类',
                                           on_delete=models.CASCADE)
 

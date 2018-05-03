@@ -43,7 +43,7 @@ class Problem(MyCUModelBase):
     """
     问题管理
     """
-    jira_code = models.CharField('jira键值', max_length=100, unique=True)
+    jira_code = models.CharField('jira键值', max_length=100)
 
     classification = models.ForeignKey(ProblemCla, verbose_name='对应问题分类',
                                        on_delete=models.CASCADE)
