@@ -180,8 +180,16 @@ class AccountView(mixins.CreateModelMixin,
         instance = self.get_object()
 
         serializer = self.get_serializer(instance)
+        data = {
+            'id': serializer.data['id'],
+            'username': serializer.data['username'],
+        }
+        group_list = []
+        for g in serializer.data['groups']:
+            group_list.append(g['id'])
+        data['groups'] = group_list
         return Response(data={'error_code': 0,
-                              'data': serializer.data},
+                              'data': data},
                         status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
