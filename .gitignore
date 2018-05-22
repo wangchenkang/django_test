@@ -45,6 +45,7 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -55,6 +56,8 @@ coverage.xml
 .static_storage/
 .media/
 local_settings.py
+local_settings.py
+db.sqlite3
 
 # Flask stuff:
 instance/
